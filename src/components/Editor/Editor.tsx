@@ -3,13 +3,14 @@ import { EditorView, keymap, placeholder } from '@codemirror/view'
 import { EditorState, type Extension } from '@codemirror/state'
 import { defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter, indentUnit } from '@codemirror/language'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
-import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
+import { closeBrackets, closeBracketsKeymap, autocompletion, completionKeymap } from '@codemirror/autocomplete'
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search'
 import { lintKeymap } from '@codemirror/lint'
 import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { useStore } from '../../store/useStore'
+import { typescriptCompletionSource } from '../../services/autocomplete'
 
 export function CodeEditor() {
   const editorRef = useRef<HTMLDivElement>(null)
@@ -36,6 +37,23 @@ export function CodeEditor() {
     },
     [activeFileId, updateFileContent, setCursorPosition]
   )
+    
+    // para insertar codigo, desde RN
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'SET_CODE' && data.code && activeFileId) {
+                    updateFileContent(activeFileId, data.code);
+                }
+            } catch {
+                // mensaje no es JSON, ignorar
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [activeFileId, updateFileContent]);
 
   useEffect(() => {
     if (!editorRef.current) return
@@ -51,6 +69,7 @@ export function CodeEditor() {
         ...historyKeymap,
         ...searchKeymap,
         ...closeBracketsKeymap,
+        ...completionKeymap,
         ...lintKeymap,
         indentWithTab,
       ]),
@@ -58,6 +77,12 @@ export function CodeEditor() {
       indentOnInput(),
       bracketMatching(),
       closeBrackets(),
+      autocompletion({
+        override: [typescriptCompletionSource],
+        activateOnTyping: true,
+        maxRenderedOptions: 200,
+        defaultKeymap: true,
+      }),
       highlightSelectionMatches(),
       foldGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
