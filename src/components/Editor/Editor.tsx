@@ -37,23 +37,6 @@ export function CodeEditor() {
     },
     [activeFileId, updateFileContent, setCursorPosition]
   )
-    
-    // para insertar codigo, desde RN
-    useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            try {
-                const data = JSON.parse(event.data);
-                if (data.type === 'SET_CODE' && data.code && activeFileId) {
-                    updateFileContent(activeFileId, data.code);
-                }
-            } catch {
-                // mensaje no es JSON, ignorar
-            }
-        };
-
-        window.addEventListener('message', handleMessage);
-        return () => window.removeEventListener('message', handleMessage);
-    }, [activeFileId, updateFileContent]);
 
   useEffect(() => {
     if (!editorRef.current) return
