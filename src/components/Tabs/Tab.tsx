@@ -1,5 +1,5 @@
 import { useStore } from '../../store/useStore'
-import { FileCode, FileJson, File, X, Circle } from 'lucide-react'
+import { FileCode, FileJson, File, X } from 'lucide-react'
 import type { FileItem } from '../../types'
 
 interface TabProps {
@@ -19,7 +19,6 @@ export function Tab({ file }: TabProps) {
   const theme = useStore(s => s.theme)
   const isDark = theme === 'dark'
   const isActive = activeFileId === file.id
-  const isUnsaved = file.content !== file.savedContent
   const Icon = fileIcon(file.name)
 
   return (
@@ -57,10 +56,6 @@ export function Tab({ file }: TabProps) {
       >
         <X className="w-3.5 h-3.5" />
       </button>
-
-      {isUnsaved && (
-        <Circle className="w-2.5 h-2.5 shrink-0 opacity-60" aria-label="Unsaved changes" />
-      )}
     </div>
   )
 }

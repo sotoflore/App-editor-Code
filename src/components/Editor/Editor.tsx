@@ -12,6 +12,9 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { useStore } from '../../store/useStore'
 import { typescriptCompletionSource } from '../../services/autocomplete'
 
+const FONT_SIZE = 14
+const TAB_SIZE = 2
+
 export function CodeEditor() {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -21,7 +24,6 @@ export function CodeEditor() {
   const updateFileContent = useStore(s => s.updateFileContent)
   const setCursorPosition = useStore(s => s.setCursorPosition)
   const theme = useStore(s => s.theme)
-  const settings = useStore(s => s.editorSettings)
 
   const activeFile = files.find(f => f.id === activeFileId)
 
@@ -72,7 +74,7 @@ export function CodeEditor() {
       EditorView.lineWrapping,
       EditorView.updateListener.of(handleUpdate),
       placeholder('Start typing your TypeScript code...'),
-      indentUnit.of('  '.repeat(settings.tabSize)),
+      indentUnit.of('  '.repeat(TAB_SIZE)),
     ]
 
     const language = activeFile?.language || 'typescript'
@@ -87,7 +89,7 @@ export function CodeEditor() {
     }
 
     extensions.push(EditorView.theme({
-      '&': { fontSize: `${settings.fontSize}px` },
+      '&': { fontSize: `${FONT_SIZE}px` },
     }))
 
     const state = EditorState.create({
@@ -106,7 +108,7 @@ export function CodeEditor() {
       view.destroy()
       viewRef.current = null
     }
-  }, [activeFileId, theme, settings.tabSize, settings.fontSize])
+  }, [activeFileId, theme])
 
   useEffect(() => {
     const view = viewRef.current

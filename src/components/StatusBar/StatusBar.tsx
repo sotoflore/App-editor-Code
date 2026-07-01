@@ -5,7 +5,6 @@ export function StatusBar() {
   const activeFileId = useStore(s => s.activeFileId)
   const theme = useStore(s => s.theme)
   const cursorPosition = useStore(s => s.cursorPosition)
-  const saveStatus = useStore(s => s.saveStatus)
   const isDark = theme === 'dark'
 
   const activeFile = files.find(f => f.id === activeFileId)
@@ -22,11 +21,6 @@ export function StatusBar() {
     >
       <div className="flex items-center gap-4">
         <span aria-label="Language">{language}</span>
-        <span aria-label="Save status">
-          {saveStatus === 'saved' && 'Saved'}
-          {saveStatus === 'unsaved' && 'Unsaved'}
-          {saveStatus === 'saving' && 'Saving...'}
-        </span>
       </div>
       <div className="flex items-center gap-4">
         <span aria-label="Line count">Ln {lineCount}</span>

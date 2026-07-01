@@ -1,4 +1,4 @@
-import { Sun, Moon, Save, PanelLeft, Play } from 'lucide-react'
+import { Sun, Moon, Play } from 'lucide-react'
 import { useStore } from '../../store/useStore'
 import { runTypeScriptCode } from '../../services/runCode'
 import type { ConsoleEntry } from '../../types'
@@ -6,9 +6,6 @@ import type { ConsoleEntry } from '../../types'
 export function TitleBar() {
   const theme = useStore(s => s.theme)
   const setTheme = useStore(s => s.setTheme)
-  const toggleSidebar = useStore(s => s.toggleSidebar)
-  const saveCurrentFile = useStore(s => s.saveCurrentFile)
-  const saveStatus = useStore(s => s.saveStatus)
   const isRunning = useStore(s => s.isRunning)
   const setIsRunning = useStore(s => s.setIsRunning)
   const addConsoleEntry = useStore(s => s.addConsoleEntry)
@@ -49,17 +46,7 @@ export function TitleBar() {
       role="banner"
       aria-label="Title Bar"
     >
-      <div className="flex items-center gap-3">
-        <button
-          onClick={toggleSidebar}
-          className={`p-1 rounded transition-colors ${isDark ? 'hover:bg-editor-hover' : 'hover:bg-gray-200'}`}
-          aria-label="Toggle sidebar"
-          title="Toggle Sidebar (Ctrl+B)"
-        >
-          <PanelLeft className="w-4 h-4" />
-        </button>
-        <span className="text-sm font-semibold tracking-wide">CodeEditor</span>
-      </div>
+      <span className="text-sm font-semibold tracking-wide">CodeEditor</span>
 
       <div className="flex items-center gap-2">
         <button
@@ -86,20 +73,6 @@ export function TitleBar() {
           title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
         >
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </button>
-
-        <button
-          onClick={saveCurrentFile}
-          disabled={saveStatus === 'saved'}
-          className={`p-1.5 rounded transition-colors ${
-            saveStatus === 'saved'
-              ? isDark ? 'text-editor-fg-dim cursor-not-allowed' : 'text-gray-300 cursor-not-allowed'
-              : isDark ? 'hover:bg-editor-hover text-editor-fg-dim hover:text-white' : 'hover:bg-gray-200 text-gray-500 hover:text-gray-800'
-          }`}
-          aria-label="Save file"
-          title="Save (Ctrl+S)"
-        >
-          <Save className="w-4 h-4" />
         </button>
       </div>
     </div>
