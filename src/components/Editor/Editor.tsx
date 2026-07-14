@@ -15,6 +15,18 @@ import { typescriptCompletionSource } from '../../services/autocomplete'
 const FONT_SIZE = 14
 const TAB_SIZE = 2
 
+interface Window {
+    ReactNativeWebView?: {
+        postMessage: (message: string) => void
+    }
+}
+
+function notifyReady() {
+    (window as Window).ReactNativeWebView?.postMessage(
+        JSON.stringify({ type: 'EDITOR_READY' })
+    )
+}
+
 export function CodeEditor() {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -39,6 +51,36 @@ export function CodeEditor() {
     },
     [activeFileId, updateFileContent, setCursorPosition]
   )
+    
+    useEffect(() => {
+        function handleMessage(event: MessageEvent) {
+            try {
+                const data = JSON.parse(event.data)
+                if (data.type === 'SET_CODE') {
+                    const code: string = data.code
+
+                    // Actualizar el contenido del archivo activo en el store
+                    const currentFileId = useStore.getState().activeFileId
+                    if (currentFileId) {
+                        useStore.getState().updateFileContent(currentFileId, code)
+                    }
+
+                    // También actualizar CodeMirror directamente
+                    const view = viewRef.current
+                    if (view) {
+                        view.dispatch({
+                            changes: { from: 0, to: view.state.doc.length, insert: code },
+                        })
+                    }
+                }
+            } catch {
+                // Ignorar mensajes que no sean JSON válido
+            }
+        }
+
+        window.addEventListener('message', handleMessage)
+        return () => window.removeEventListener('message', handleMessage)
+    }, [])
 
   useEffect(() => {
     if (!editorRef.current) return
@@ -102,7 +144,9 @@ export function CodeEditor() {
       parent: editorRef.current,
     })
 
-    viewRef.current = view
+      viewRef.current = view
+      
+      notifyReady()
 
     return () => {
       view.destroy()
